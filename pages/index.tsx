@@ -15,6 +15,8 @@ export default function Home() {
   const [date, setDate] = useState<Date>(() => new Date());
   const [schedule, setSchedule] = useState<Schedule>(() => new Map());
 
+  const diasSemana = ['Domingo','Lunes','Martes','Miércoles', 'Jueves','Viernes','Sábado']
+
   function handleMonthChange(offset: number) {
     const draft = new Date(date);
     draft.setMonth(date.getMonth() + offset);
@@ -29,12 +31,12 @@ export default function Home() {
     }
 
     const day = draft.get(key);
-    const id = String(+new Date());
+    const id = String(Date.now());
     const title = window.prompt("Event title");
 
     if (!title) return;
 
-    day.set(id, {
+    day?.set(id, {
       id,
       title,
     });
@@ -59,7 +61,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <nav>
+        <nav className={styles.nav}>
           <button onClick={() => handleMonthChange(-1)}>←</button>
           {date.toLocaleString("default", {
             month: "long",
@@ -69,6 +71,17 @@ export default function Home() {
           {/* <button onClick={() => setDate(new Date())}>TODAY</button> */}
         </nav>
         <div className={styles.calendar}>
+          {diasSemana.map((dia, i) => (
+            <div key={i}>
+              {dia}
+            </div>
+          ))}
+          
+          {Array.from({ length: (new Date(date.getFullYear(),date.getMonth(),1)).getDay() }, (_, i) => (
+            <div key={i} className={styles.day}>
+            </div>
+          ))}
+
           {Array.from(
             {
               length: new Date(
@@ -78,7 +91,9 @@ export default function Home() {
               ).getDate(),
             },
             (_, i) => {
-              const key = `${date.getFullYear()}/${date.getMonth()}/${i + 1}`;
+              const key = `${date.getFullYear()}/${date.getMonth() + 1}/${
+                i + 1
+              }`;
               const events = schedule.get(key);
 
               return (
