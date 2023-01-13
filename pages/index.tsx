@@ -106,7 +106,7 @@ export default function Home() {
               }`;
               const events = schedule.get(key);
               
-              const clasesDiv = (i + 1 === date.getDate()) ? `${styles.day} ${styles.dayToday}` : `${styles.day}`
+              const clasesDiv = (i + 1 === date.getDate() && date.getMonth() === (new Date().getMonth())) ? `${styles.day} ${styles.dayToday}` : `${styles.day}`
 
               return (
                 <div
