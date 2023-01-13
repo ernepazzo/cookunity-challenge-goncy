@@ -34,3 +34,7 @@
   height: 150px;
   overflow-y: auto;
 }
+
+.dayToday {
+  background-color: gray;
+}

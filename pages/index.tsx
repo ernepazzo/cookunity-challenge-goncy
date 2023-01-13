@@ -15,7 +15,15 @@ export default function Home() {
   const [date, setDate] = useState<Date>(() => new Date());
   const [schedule, setSchedule] = useState<Schedule>(() => new Map());
 
-  const diasSemana = ['Domingo','Lunes','Martes','Miércoles', 'Jueves','Viernes','Sábado']
+  const diasSemana = [
+    "Domingo",
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+  ];
 
   function handleMonthChange(offset: number) {
     const draft = new Date(date);
@@ -68,19 +76,21 @@ export default function Home() {
             year: "numeric",
           })}
           <button onClick={() => handleMonthChange(1)}>→</button>
-          {/* <button onClick={() => setDate(new Date())}>TODAY</button> */}
         </nav>
+        <button className={styles.nav} onClick={() => setDate(new Date())}>TODAY</button>
         <div className={styles.calendar}>
           {diasSemana.map((dia, i) => (
-            <div key={i}>
-              {dia}
-            </div>
+            <div key={i}>{dia}</div>
           ))}
-          
-          {Array.from({ length: (new Date(date.getFullYear(),date.getMonth(),1)).getDay() }, (_, i) => (
-            <div key={i} className={styles.day}>
-            </div>
-          ))}
+
+          {Array.from(
+            {
+              length: new Date(date.getFullYear(), date.getMonth(), 1).getDay(),
+            },
+            (_, i) => (
+              <div key={i} className={styles.day}></div>
+            )
+          )}
 
           {Array.from(
             {
@@ -95,12 +105,14 @@ export default function Home() {
                 i + 1
               }`;
               const events = schedule.get(key);
+              
+              const clasesDiv = (i + 1 === date.getDate()) ? `${styles.day} ${styles.dayToday}` : `${styles.day}`
 
               return (
                 <div
                   onClick={() => handleNewEvent(key)}
                   key={i}
-                  className={styles.day}
+                  className={clasesDiv}
                 >
                   {i + 1}
                   {events && (
@@ -132,6 +144,24 @@ export default function Home() {
                 </div>
               );
             }
+          )}
+
+          {Array.from(
+            {
+              length:
+                (new Date(date.getFullYear(), date.getMonth(), 1).getDay() < 6
+                  ? 35
+                  : 42) -
+                (new Date(
+                  date.getFullYear(),
+                  date.getMonth() + 1,
+                  0
+                ).getDate() +
+                  new Date(date.getFullYear(), date.getMonth(), 1).getDay()),
+            },
+            (_, i) => (
+              <div key={i} className={styles.day}></div>
+            )
           )}
         </div>
       </main>
