@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import styles from "../styles/Home.module.css";
 
@@ -11,9 +11,55 @@ interface Event {
 
 type Schedule = Map<string, Map<string, Event>>;
 
+/**
+ * Local Storage
+ */
+function obtenerMapStorage(json_storage: string) {
+  const draft = new Map();
+
+  const json_storage_0 = json_storage[0];
+
+  for (let js_st in json_storage_0) {
+    draft.set(js_st, new Map());
+
+    const subMap = json_storage_0[js_st];
+    for (let js in subMap) {
+      const day = draft.get(js_st);
+
+      const event_map = subMap[js];
+      const id = event_map[0];
+      const title = event_map[1]["title"];
+
+      day.set(id, {
+        id,
+        title,
+      });
+    }
+  }
+
+  return draft;
+}
+/**
+ * Local Storage
+ */
+
 export default function Home() {
   const [date, setDate] = useState<Date>(() => new Date());
   const [schedule, setSchedule] = useState<Schedule>(() => new Map());
+
+  /**
+   * Local Storage
+   */
+  useEffect(() => {
+    const json_storage = JSON.parse(
+      "[" + localStorage.getItem("schedule") + "]"
+    );
+
+    setSchedule(obtenerMapStorage(json_storage));
+  }, []);
+  /**
+   * Local Storage
+   */
 
   const diasSemana = [
     "Domingo",
@@ -50,6 +96,8 @@ export default function Home() {
     });
 
     setSchedule(draft);
+
+    guardarLocalStorage(draft);
   }
 
   function handleDeleteEvent(key: string, id: string) {
@@ -58,6 +106,26 @@ export default function Home() {
 
     day.delete(id);
     setSchedule(draft);
+
+    guardarLocalStorage(draft);
+  }
+
+  function guardarLocalStorage(draft: Schedule) {
+    const draftObj = Object.fromEntries(draft);
+    
+    const draftSoloObj = new Array();
+
+    for (let obj in draftObj) {
+      const draftInterno = draftObj[obj];
+      const draftInternoObject = Object.entries(
+        Object.fromEntries(draftInterno)
+      );
+
+      draftSoloObj[obj] = draftInternoObject;
+    }
+
+    const json_locale_storage = JSON.stringify(Object.assign({}, draftSoloObj));
+    window.localStorage.setItem("schedule", json_locale_storage);
   }
 
   return (
@@ -77,7 +145,9 @@ export default function Home() {
           })}
           <button onClick={() => handleMonthChange(1)}>→</button>
         </nav>
-        <button className={styles.nav} onClick={() => setDate(new Date())}>TODAY</button>
+        <button className={styles.nav} onClick={() => setDate(new Date())}>
+          TODAY
+        </button>
         <div className={styles.calendar}>
           {diasSemana.map((dia, i) => (
             <div key={i}>{dia}</div>
@@ -105,8 +175,12 @@ export default function Home() {
                 i + 1
               }`;
               const events = schedule.get(key);
-              
-              const clasesDiv = (i + 1 === date.getDate() && date.getMonth() === (new Date().getMonth())) ? `${styles.day} ${styles.dayToday}` : `${styles.day}`
+
+              const clasesDiv =
+                i + 1 === date.getDate() &&
+                date.getMonth() === new Date().getMonth()
+                  ? `${styles.day} ${styles.dayToday}`
+                  : `${styles.day}`;
 
               return (
                 <div
